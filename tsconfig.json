@@ -1,11 +1,19 @@
+// {
+//   "compilerOptions": {
+//     "target": "ESNext",
+//     "module": "ESNext", // TypeScript 保留 import() 语句，该语句用于 Webpack Code Splitting
+//     //   // "allowJs": true,
+//     "outDir": "./dist",
+//     // "strict": true,
+//     "moduleResolution": "Node"
+//     //   "noEmitOnError": true
+//     //   // "allowImportingTsExtensions": true // 只能在noEmit时使用
+//   },
+//   "include": ["src/**/*"],
+//   "exclude": ["node_modules"]
+//   // "compileOnSave": true,
+
+// }
 {
-  "compilerOptions": {
-    "target": "ES6",
-    "module": "ESNext", // TypeScript 保留 import() 语句，该语句用于 Webpack Code Splitting
-    "allowJs": true,
-    "outDir": "./dist",
-    "strict": true,
-    "moduleResolution": "Node"
-  },
-  "include": ["./src"]
+  "references": []
 }

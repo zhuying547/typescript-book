@@ -9,6 +9,10 @@ export default {
       file: 'bundle.js',
       format: 'cjs',
     },
+    {
+      file: 'es.bundle.js',
+      format: 'es',
+    },
   ],
   plugins: [resolve()],
 }

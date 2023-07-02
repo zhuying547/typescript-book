@@ -1,0 +1,14 @@
+// app/tsconfig.json
+{
+  "compilerOptions": {
+    "target": "es6",
+    "outDir": "../dist/app",
+    "baseUrl": ".",
+    "composite": true
+  },
+  "include": ["src"]
+}
+// 在这里使用项目引用-这样可以在app项目里使用core项目中的模块和类型
+// 如果不引用的话会怎么样？
+
+// 如果不想使用项目引用的话，如何在app项目里使用core项目中的模块和类型呢

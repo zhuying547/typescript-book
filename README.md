@@ -1,137 +1,55 @@
-# typescript-book
+使用 TypeScript 进行代码编写，然后要确保编译后的 JavaScript 代码能在浏览器中运行。
 
-深入理解 TypeScript
+TS系统中的 `import(somePath)` 仅仅是导入模块声明。
 
-## TypeScript 项目
+## FAQ
 
-### 编译上下文
+### 在 Node 环境中运行 ESM
 
-编译上下文告诉 TypeScript 哪些文件是有效的，哪些是无效的，还包含有正在被使用的编译选项的信息。
-在项目的根目录下创建一个空 JSON 文件。通过这种方式，TypeScript 将会把此目录和子目录下的所有 .ts 文件作为编译上下文的一部分，它还会包含一部分默认的编译选项。
+在CJS规范中，导入 JavaScript 模块是不需要写扩展名的：`require('foo')`
 
-### 声明空间
+在ESM中要求必须写文件扩展名，但是ts编写的代码中是不需要后缀名的，甚至你补充ts后缀名还会报错。
 
-类型声明空间与变量声明空间。
+最终的方案是：`node --es-module-specifier-resolution=node main.js` 
 
-#### 类型声明空间
+### extends
 
-类型声明空间包含用来当做类型注解的内容，例如下面的类型声明：
+在 tsconfig.json 文件中使用 extends 去扩展其它配置文件，这时 extends 配置的优先级是最低的。类似继承的规则，如果当前 tsconfig.json 存在相同的配置，那么会使用当前 tsconfig.json 的配置。如果当前 tsconfig.json 中没有该配置则继承 extends 扩展文件中的配置。
 
-```ts
-type Bas = {}
-let bas: Bas
-```
+### references
 
-#### 变量声明空间
+在tsconfig.json里配置references具体的影响在哪里呢？
 
-变量声明空间包含可用作变量的内容。
+使用项目引用改善编辑器的交互时间，执行组件之间的逻辑分离，并以新的和改进的方式组织你的代码。
 
-### 模块
+`tsc --build` 与 project references 一起工作开启更快的 TypeScript 构建。
 
-#### 全局模块
+当引用一个项目中会发生下面的事：
 
-在默认情况下，当你开始在一个新的 TypeScript 文件中写下代码时，它处于全局命名空间中。
-**使用全局变量空间是危险的，因为它会与文件内的代码命名冲突。**
+- 从引用的项目导入模块时，会加载其输出的声明文件（.d.ts）而不是源代码文件。
 
-#### 文件模块
+tsconfig.json 的文件就是在运行 tsc 对ts文件进行编译时的配置。如果我不在tsconfig.json配置好项目引用的话，那么我在tsc编译ts代码的时候就会出现模块未找到的报错。所以这个时候我就得配置project references，注意此时project references还需要考虑顺序的。
 
-如果在你的 TypeScript 文件的根级别位置含有 `import` 或者 `export`，那么它会在这个文件中创建一个本地的作用域。
+如果没有项目引用的话，导入另一个项目的模块会变得非常难用。
 
-#### 文件模块详情
+create-vue的那种格式就一个问题，就是在编译的时候使用的是tsconfig.json吗？
 
-你可以根据不同的 `module` 选项来把 TypeScript 编译成不同的 JavaScript 模块类型：
+那么问题来了，vite 是如何处理ts的转译的？esbuild是如何处理的
 
-- AMD：不要使用它，它仅能在浏览器工作；
-- SystemJS：这是一个好的实验，已经被 ES 模块替代；
+esbuild会将代码进行转译，当然用的是esbuild内置的配置，这个时候需要单独通过tsc去检测类型，注意测试的配置需要和esbuild的默认行为保持一致。esbuild只会使用tsconfig.json中的某些配置。
 
-推荐使用 ES 模块语法书写 TypeScript 模块。
-
-## TypeScript 类型系统
-
-### 概览
-
-#### 基本注解
-
-类型注解使用 `:TypeAnnotation` 语法。
-使用了变量、函数参数以及函数返回值的类型注解。
-
-```ts
-const num: number = 123
-function identity(num: number): number {
-  return num
+```json
+// tsconfig.json
+{
+  "compilerOptions": {
+    "isolatedModules": true,
+    "esModuleInterop": true
+  }
 }
 ```
 
-#### 接口
+我在项目中可以使用tsconfig.node.json和tsconfig.app.json编译后的模块。
 
-接口能合并众多类型声明至一个类型声明。
+所以当我在.vue文件中使用import时，导入的其实是被tsconfig.app.json的模块声明。
 
-```ts
-interface Name {
-  first: string
-  second: string
-}
-let name: Name
-```
-
-#### 类型别名
-
-```ts
-type StrOrNum = string | number
-let sample: StrOrNum
-```
-
-### 从 JavaScript 迁移
-
-为第三方 JavaScript 代码定义环境声明。
-
-#### TypeScript 类型定义的仓库
-
-使用 npm 获取声明文件，编译器会自动引入这些类型。
-
-#### 第三方代码
-
-创建一个针对于特定库的声明文件
-
-#### 额外的非 JavaScript 资源
-
-这里代码写在 `global.d.ts` 文件中：
-
-```ts
-declare module '*.css'
-```
-
-### @types
-
-#### 使用 @types
-
-安装完之后，不需要特别的配置。
-
-#### 控制全局
-
-通过配置 `compilerOptions.types: [ "jquery" ]` 后，只允许使用 jquery 的 @types 包，即使这个人安装了另一个声明文件，比如 npm install @types/node，它的全局变量（例如 process）也不会泄漏到你的代码中，直到你将它们添加到 tsconfig.json 类型选项。
-
-### 环境声明
-
-#### 声明文件
-
-你可以通过 `declare` 关键字来告诉 TypeScript，你正在试图表述一个其他地方已经存在的代码。
-如果一个文件有扩展名 `.d.ts`，这意味着每个根级别的声明都必须以 `declare` 关键字作为前缀。
-
-### lib.d.ts
-
-这个文件包含 JavaScript 运行时以及 DOM 中存在各种常见的环境声明。
-
-#### 编译目标对 lib.d.ts 的影响
-
-设置编译目标为 es6 时，能导致 lib.d.ts 包含更多像 Promise 现代（es6）内容的环境声明。
-
-`lib`分类：
-
-- JavaScript 功能
-- 运行环境
-- ESNext 功能选项
-
-### 异常处理
-
-JavaScript 有一个 Error 类，用于处理异常。你可以通过 throw 关键字来抛出一个错误。然后通过 try/catch 块来捕获此错误
+只有哪些引用的模块才会被tsconfig.app.json或tsconfig.node.json处理。其它的则是被 tsconfig.json 处理的也会被esbuild尊重。当然像volar这样的插件也会尊重tsconfig.json不会去处理其它的引用项目的。

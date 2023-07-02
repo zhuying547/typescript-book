@@ -1,0 +1,12 @@
+// core/tsconfig.json
+{
+  "compilerOptions": {
+    "target": "es6",
+    "outDir": "../dist/core",
+    "declaration": true,
+    "declarationDir": "../dist/core/types",
+    "composite": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}
